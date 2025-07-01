@@ -1,0 +1,11 @@
+#%RAML 1.0 DataType
+description: Representa una lista de imagenes por pelicula.
+type: object
+properties:
+  id: number
+  id_movie: number
+  name: string
+  description?: {
+    type: string,
+    minLength: 5
+  }

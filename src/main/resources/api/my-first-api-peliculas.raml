@@ -1,0 +1,233 @@
+#%RAML 1.0
+title: my-first-api
+mediaType: application/json
+version: 1.0
+baseUri: https://api.peliculas.com/{version}
+protocols: [HTTPS]
+securedBy: [ jwtAuth ]
+
+documentation:
+  - title: Introducción
+    content: |
+      Esta API permite gestionar una colección de películas. Puedes listar, crear, editar o eliminar películas.
+
+types:
+  Cast: !include /Types/CastType.raml
+  Movie: !include /Types/MovieType.raml
+  ErrorResponse: !include /Types/ErrorResponseType.raml
+  Image: !include Types/ImageType.raml
+
+traits:
+  paginable:
+    queryParameters:
+      limit:
+        type: integer
+        default: 10
+      offset:
+        type: integer
+        default: 0
+
+securitySchemes:
+  jwtAuth:
+    description: Seguridad basada en token JWT.
+    type: x-custom
+    describedBy:
+      headers:
+        Authorization:
+          description: Token JWT en el encabezado. 'Formato Bearer {token}'
+          type: string
+          required: true
+      responses:
+        401:
+          description: Token inválido o expirado.
+          body:
+            application/json:
+              type: ErrorResponse
+              example:
+                message: No autorizado. Token inválido.
+    settings:
+      type: jwt
+
+/movies:
+  get:
+    description: Obtiene la lista completa de películas o filtra por título.
+    is: [ paginable ]
+    queryParameters:
+      title:
+        type: string
+        description: Filtro por título de película
+        required: false
+    responses:
+      200:
+        body:
+          type: array
+          items: Movie
+          example: !include /Example/MoviesExample.json
+      400:
+        description: Error en la llamada.
+        body:
+          type: ErrorResponse
+          example: 
+              message: Peliculas no cargadas
+  
+  post:
+    description: Crea una nueva película.
+    body:
+        type: Movie
+        example: !include /Example/MovieExample.raml
+    responses:
+      201:
+        description: Película creada exitosamente.
+      400:
+        description: Error en la creacion.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Pelicula no guardada
+
+/movies/{id}:
+  description: Obtiene una pelicula por Id.
+  uriParameters:
+    id:
+      type: number
+      description: ID de la película.
+      
+  get:
+    description: Obtiene una película por su ID.
+    responses:
+      200:
+        body:
+          type: Movie
+          example: !include /Example/MovieExample.raml
+      404:
+        description: Película no encontrada.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Pelicula no encontrada
+  put:
+    description: Actualiza una película por su ID.
+    body:
+        type: Movie
+    responses:
+      200:
+        body:
+          type: Movie
+          example: !include /Example/MovieExample.json
+      404:
+        description: Película no encontrada.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Pelicula no encontrada
+  delete:
+    description: Elimina una película por su ID.
+    responses:
+      204:
+        description: Eliminación exitosa.
+      404:
+        description: Película no encontrada.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Pelicula no encontrada
+
+/cast:
+  get:
+    description: Obtener la lista de actores
+    responses:
+      200:
+        body:
+            type: array
+            items: Cast
+            example: !include Example/actors-example.json
+      404:
+        description: Actores no encontrados.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Actores no encontrados
+  post:
+    description: Crear un nuevo actor
+    body:
+        type: Cast
+        example: !include Example/actor-example.json
+    responses:
+      201:
+        description: Actor creado correctamente
+      404:
+        description: Error al guardar al actor.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Error al guardar al actor.
+
+/cast/{id}:
+  uriParameters:
+    id:
+      type: integer
+      description: ID del actor
+  get:
+    description: Obtener los datos de un actor por su ID
+    responses:
+      200:
+        body:
+            type: Cast
+            example: !include Example/actor-example.json
+      404:
+        description: Actor no encontrado.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Actor no encontrado.
+
+/image/{id}:
+  description: Imagen de una pelicula, obtenida por Id de la pelicula.
+  uriParameters:
+    id:
+      type: integer
+      description: ID de la pelicula.
+  get:
+    description: Obtener lo imagen de un pelicula por su ID
+    responses:
+      200:
+        body:
+          type: array
+          items: Image
+          example: !include Example/ImagesExample.json
+      404:
+        description: Imagen de Pelicula no encontrada.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Imagen de Pelicula no encontrada.
+
+/image:
+  get:
+    description: Obtener la lista de imagenes
+    responses:
+      200:
+        body:
+            type: array
+            items: Image
+           
+      404:
+        description: Imagenes no encontrados.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Imagenes no encontrados
+  post:
+    description: Crear una nueva Imagen
+    body:
+        type: Image
+        
+    responses:
+      201:
+        description: Imagen creada correctamente
+      404:
+        description: Error al guardar la Imagen.
+        body:
+          type: ErrorResponse            
+          example: 
+            message: Error al guardar la Imagen.

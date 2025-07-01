@@ -1,0 +1,13 @@
+#%RAML 1.0 DataType
+description: Detalle de una película.
+type: object
+properties:
+  id: integer
+  title: string
+  year?: integer
+  genre?: string
+  director?: string
+  id_image?: integer
+  cast?:
+    type: array
+    items: !include /Types/CastType.raml

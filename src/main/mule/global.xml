@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	 <http:listener-config name="my-first-api-peliculas-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="6afc5960-4482-4b0b-894f-67179813ca63" file="default.properties" />
+	<os:object-store name="Movies" doc:name="Object store" doc:id="018a8050-e0d4-4e9a-9c82-8cb1bf2abaeb" />
+	<os:object-store name="Cast" doc:name="Object store" doc:id="57342d7b-b958-4167-bda8-795006d9c3f3" />
+	<os:object-store name="Images" doc:name="Object store" doc:id="e574c671-b941-47c6-9a2c-f53ee987c17c" />
+    
+</mule>

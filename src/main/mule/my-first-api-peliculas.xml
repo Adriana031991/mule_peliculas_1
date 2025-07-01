@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+   
+    <apikit:config name="my-first-api-peliculas-config" api="my-first-api-peliculas.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="my-first-api-peliculas-main">
+        <http:listener config-ref="my-first-api-peliculas-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="my-first-api-peliculas-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="my-first-api-peliculas-console">
+        <http:listener config-ref="my-first-api-peliculas-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="my-first-api-peliculas-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\movies\(id):application\json:my-first-api-peliculas-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  id: 1,
+  title: "Inception",
+  year: 2010,
+  genre: "Animación",
+  director: "Ron Clements y John Musker",
+  cast: [
+    {
+      id: 1,
+      name: "Leonardo DiCaprio",
+      age: 47
+    }, 
+    {
+      id: 2,
+      name: "Joseph Gordon-Levitt",
+      age: 39
+    }
+  ]
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\movies\(id):my-first-api-peliculas-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Pelicula no encontrada"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\cast:my-first-api-peliculas-config">
+        <os:retrieve doc:name="Casts" doc:id="8c618580-0b24-4e2f-8e24-349d4020a075" key="#[Mule::p('os.cast')]" objectStore="Cast" target="cast"/>
+		<set-payload value="#[payload]" doc:name="Cast" doc:id="5aa67620-15ce-405b-8dad-c718d42ec4a9" />
+    </flow>
+    <flow name="get:\cast\(id):my-first-api-peliculas-config">
+        <os:retrieve doc:name="Cast" doc:id="ed222b7d-f872-474b-a1b0-8c5cbed17747" key="#[Mule::p('os.cast')]" objectStore="Cast" target="cast"/>
+		<set-variable value="#[attributes.uriParams.id as Number]" doc:name="id_Cast" doc:id="8fa66e71-bda7-4393-bb85-bdda2f432fd8" variableName="id"/>
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var castList = 
+  if (vars.cast is Array)
+    vars.cast filter (m) -> m.id == vars.id
+    //vars.movies filter (m) -> m.id != null
+  else 
+    []
+    
+---
+
+
+if (sizeOf(castList) > 0) 
+  castList[0] 
+else 
+  { error: "Actor de reparto con ID " ++ (vars.id as String) ++ " no encontrada." }]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\image\(id):my-first-api-peliculas-config">
+        <os:retrieve doc:name="images" doc:id="c3573e7f-ab65-4166-9471-dcb5de4360ca" key="#[Mule::p('os.image')]" target="image" objectStore="Images"/>
+		<set-variable value="#[attributes.uriParams.id as Number]" doc:name="id_image" doc:id="ef6cc00f-4e2e-4f8e-a215-6b2288f08844" variableName="id"/>
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var imagesList = 
+  if (vars.image is Array)
+    vars.image filter (m) -> m.id == vars.id
+    //vars.movies filter (m) -> m.id != null
+  else 
+    []
+    
+---
+
+
+if (sizeOf(imagesList) > 0) 
+  imagesList[0] 
+else 
+  { error: "Imagen con ID " ++ (vars.id as String) ++ " no encontrada." }]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\movies:my-first-api-peliculas-config">
+        <os:retrieve doc:name="Movies" doc:id="cc629c2e-17b3-45e6-9422-42e6cccdc61c" key="#[Mule::p('os.movies')]" objectStore="Movies"/>
+		<set-payload value="#[payload]" doc:name="Movies" doc:id="1ff9f828-296a-4a95-84c9-89d5eb2b12e5" />
+    </flow>
+    <flow name="get:\movies\(id):my-first-api-peliculas-config">
+        <os:retrieve doc:name="Movies" doc:id="e4112386-1df8-47ad-a746-155053f2254b" key="#[Mule::p('os.movies')]" objectStore="Movies" target="movies"/>
+		<set-variable value="#[attributes.uriParams.id as Number]" doc:name="id_movie" doc:id="799376ef-566a-4c3d-9cd7-3c488789f634" variableName="id"/>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var movieList = 
+  if (vars.movies is Array)
+    vars.movies filter (m) -> m.id == vars.id
+    //vars.movies filter (m) -> m.id != null
+  else 
+    []
+    
+---
+
+
+if (sizeOf(movieList) > 0) 
+  movieList[0] 
+else 
+  { error: "Película con ID " ++ (vars.id as String) ++ " no encontrada." }
+
+]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\cast:application\json:my-first-api-peliculas-config">
+        <logger level="INFO" message="Clave para cast: #[p('os.cast')]" />
+		<os:retrieve doc:name="cast" doc:id="7b1acfbb-25a5-4eb2-a2e6-0ae08945d8c7" key="#[Mule::p('os.cast')]" objectStore="Cast" target="cast">
+			<os:default-value ><![CDATA[#[[]]]]></os:default-value>
+		</os:retrieve>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var currentCast = 
+  if (vars.cast is Array)
+    vars.cast
+  else if (vars.cast is Object)
+    [vars.cast] 
+  else 
+    []
+---
+
+currentCast ++ [
+  {
+    id: payload.id,
+    name: payload.name    
+   // age:payload.age
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<os:store doc:name="Agregar actor de reparto" doc:id="e55f8eae-9a35-438b-9091-8fc2e639a596" key="#[Mule::p('os.cast')]" objectStore="Cast"/>
+    </flow>
+	<flow name="post:\movies:application\json:my-first-api-peliculas-config">
+        <os:retrieve doc:name="Movies" doc:id="9fc5d07c-01f7-491e-aa88-55f05b45d7e8" key="#[Mule::p('os.movies')]" objectStore="Movies" target="movies">
+			<os:default-value ><![CDATA[#[[]]]]></os:default-value>
+		</os:retrieve>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var currentMovies = 
+  if (vars.movies is Array)
+    vars.movies
+  else if (vars.movies is Object)
+    [vars.movies] 
+  else 
+    []
+---
+
+currentMovies ++ [
+  {
+    id: payload.id,
+    title: payload.title,
+    director: payload.director,
+    year: payload.year,
+    genre: payload.genre,
+    id_image: payload.id_image,
+    cast: payload.cast map (actor) -> {
+      id: actor.id,
+      name: actor.name
+    }
+  }
+]]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<os:store doc:name="Agrega pelicula" doc:id="1756ecfa-d9a5-4e88-8422-7d2ad187593b" key="#[Mule::p('os.movies')]" objectStore="Movies"/>
+    </flow>
+
+	<flow name="post:\image:application\json:my-first-api-peliculas-config" doc:id="18a6ff39-a162-418c-8a01-08a951a7a45e" >
+		<os:retrieve doc:name="Image" doc:id="348ffe56-000e-4768-b949-322bb806669f" key="#[Mule::p('os.image')]" objectStore="Images" target="image" >
+			<os:default-value ><![CDATA[#[[]]]]></os:default-value>
+		</os:retrieve>
+		<ee:transform doc:name="Transform Message" doc:id="04c1bb34-7379-4960-9e03-88e3d91105d7">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var currentImages = 
+  if (vars.image is Array)
+    vars.image
+  else if (vars.image is Object)
+    [vars.image] 
+  else 
+    []
+---
+
+currentImages ++ [
+  {
+    id: payload.id,
+    id_movie: payload.id_movie,
+    name: payload.name,
+    description: payload.description,
+  }
+]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<os:store doc:name="Agrega imagen" doc:id="a08a3ba8-ab4c-4f5d-9abe-809daf095b88" key="#[Mule::p('os.image')]" objectStore="Images" />
+	</flow>
+</mule>

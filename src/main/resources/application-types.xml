@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="ImageType" format="json">
+      <types:shape format="weave" example="examples/ImagesExample.json"><![CDATA[%dw 2.0
+
+type ImageType = Array<{|  id: Number {"typeId": "int"},   id_movie: Number {"typeId": "int"},   name: String,   description: String|}> {"example": "[{\\\"id\\\":1,\\\"id_movie\\\":1,\\\"name\\\":\\\"Imagen_cascada.png\\\",\\\"description\\\":\\\"Cascada que se muestra al iniciar la pelicula.\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#747e6087-e947-41b6-a861-902190653361">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="ImageType"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#04c1bb34-7379-4960-9e03-88e3d91105d7">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="ImageType"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

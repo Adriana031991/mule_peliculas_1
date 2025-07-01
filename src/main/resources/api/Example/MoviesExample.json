@@ -1,0 +1,40 @@
+[
+  {
+    "id": 1,
+    "title": "Inception",
+    "year": 2010,
+    "genre": "Animación",
+    "director": "Ron Clements y John Musker",
+    "cast": [
+      {
+        "id": 1,
+        "name": "Leonardo DiCaprio",
+        "age": 47
+      },
+      {
+        "id": 2,
+        "name": "Joseph Gordon-Levitt",
+        "age": 39
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "The Matrix",
+    "year": 1999,
+    "genre": "Animación",
+  "director": "Ron Clements y John Musker",
+    "cast": [
+      {
+        "id": 3,
+        "name": "Keanu Reeves",
+        "age": 56
+      },
+      {
+        "id": 4,
+        "name": "Laurence Fishburne",
+        "age": 59
+      }
+    ]
+  }
+]
